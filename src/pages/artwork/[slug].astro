@@ -18,6 +18,7 @@ const categoryHref = artwork.data.category === 'sketches' ? `${basePath}sketches
 const imgSrc = artwork.data.image.startsWith('/')
   ? `${basePath}${artwork.data.image.slice(1)}`
   : `${basePath}${artwork.data.image}`;
+const roomSrc = `${basePath}images/living-room.jpg`;
 ---
 
 <BaseLayout title={`${artwork.data.title} | Moshe Roth`} description={artwork.data.description ?? artwork.data.title}>
@@ -25,7 +26,8 @@ const imgSrc = artwork.data.image.startsWith('/')
     <div class="image-container">
       <img src={imgSrc} alt={artwork.data.title} />
     </div>
-    <div class="info">
+
+    <div class="details">
       <h1>{artwork.data.title}</h1>
       {artwork.data.year && <span class="year">{artwork.data.year}</span>}
       {artwork.data.category && (
@@ -33,10 +35,59 @@ const imgSrc = artwork.data.image.startsWith('/')
           {artwork.data.category}
         </a>
       )}
+
+      <dl class="info-list">
+        {artwork.data.medium && (
+          <>
+            <dt>Medium</dt>
+            <dd>{artwork.data.medium}</dd>
+          </>
+        )}
+        {artwork.data.size && (
+          <>
+            <dt>Size</dt>
+            <dd>{artwork.data.size}</dd>
+          </>
+        )}
+        {artwork.data.price && (
+          <>
+            <dt>Price</dt>
+            <dd class="price">{artwork.data.price}</dd>
+          </>
+        )}
+      </dl>
+
+      {artwork.data.price && (
+        <div class={`availability ${artwork.data.sold ? 'sold' : 'available'}`}>
+          <span class="availability-dot" aria-hidden="true"></span>
+          <span>{artwork.data.sold ? 'Sold' : 'Available'}</span>
+        </div>
+      )}
+
+      {artwork.data.price && !artwork.data.sold && (
+        <a
+          href="https://www.instagram.com/mzsrtgzr2/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="contact-btn"
+        >
+          Contact me on Instagram
+        </a>
+      )}
+
       <div class="content">
         <Content />
       </div>
     </div>
+
+    <section class="room-preview">
+      <h2>In your space</h2>
+      <div class="room-scene" style={`background-image: url('${roomSrc}')`}>
+        <div class="frame">
+          <img src={imgSrc} alt={artwork.data.title} />
+        </div>
+      </div>
+    </section>
   </article>
 </BaseLayout>
 
@@ -58,12 +109,12 @@ const imgSrc = artwork.data.image.startsWith('/')
     display: block;
   }
 
-  .info {
-    padding: 0 1rem;
+  .details {
+    padding: 0 0 3rem;
   }
 
-  .info h1 {
-    font-size: 1.25rem;
+  .details h1 {
+    font-size: 1.5rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     margin: 0 0 0.5rem;
@@ -86,8 +137,78 @@ const imgSrc = artwork.data.image.startsWith('/')
     opacity: 1;
   }
 
+  .info-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 2rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+  }
+
+  .info-list dt {
+    font-weight: 500;
+    color: #666;
+  }
+
+  .info-list dd {
+    margin: 0;
+  }
+
+  .info-list .price {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .availability {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .availability.available {
+    color: #2d7a3e;
+  }
+
+  .availability.sold {
+    color: #c53030;
+  }
+
+  .availability-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .availability.available .availability-dot {
+    background: #2d7a3e;
+  }
+
+  .availability.sold .availability-dot {
+    background: #c53030;
+  }
+
+  .contact-btn {
+    display: inline-block;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.5rem;
+    background: #111;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .contact-btn:hover {
+    opacity: 0.85;
+  }
+
   .content {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     line-height: 1.7;
     color: #444;
   }
@@ -96,9 +217,72 @@ const imgSrc = artwork.data.image.startsWith('/')
     margin-bottom: 1rem;
   }
 
+  .room-preview {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+  }
+
+  .room-preview h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+    color: #666;
+  }
+
+  .room-scene {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    max-height: 400px;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 12%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .frame {
+    width: 32%;
+    max-width: 200px;
+    aspect-ratio: 3/4;
+    padding: 0.5rem;
+    background: #f5f0e8;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.2),
+      0 2px 6px rgba(0, 0, 0, 0.1),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   @media (max-width: 640px) {
     .artwork {
       padding: 1rem;
+    }
+
+    .room-scene {
+      aspect-ratio: 3/4;
+      max-height: 320px;
+    }
+
+    .frame {
+      width: 45%;
+      max-width: 160px;
     }
   }
 </style>

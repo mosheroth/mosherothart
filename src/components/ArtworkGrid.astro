@@ -27,6 +27,7 @@ artworks = artworks.sort((a, b) => {
 });
 ---
 
+<div class="grid-wrapper">
 <div class="grid">
   {artworks.map((artwork) => {
     const imgSrc = artwork.data.image.startsWith('/')
@@ -40,12 +41,29 @@ artworks = artworks.sort((a, b) => {
           loading="lazy"
           decoding="async"
         />
+        <div class="overlay">
+          <span class="overlay-title">{artwork.data.title}</span>
+          {artwork.data.price && <span class="overlay-price">{artwork.data.price}</span>}
+          {artwork.data.price && (
+            <span class={`overlay-status ${artwork.data.sold ? 'sold' : 'available'}`}>
+              <span class="overlay-status-dot" aria-hidden="true"></span>
+              {artwork.data.sold ? 'Sold' : 'Available'}
+            </span>
+          )}
+        </div>
       </a>
     );
   })}
 </div>
+</div>
 
 <style>
+  .grid-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -57,6 +75,7 @@ artworks = artworks.sort((a, b) => {
     aspect-ratio: 1;
     overflow: hidden;
     display: block;
+    position: relative;
   }
 
   .grid-item img {
@@ -68,6 +87,77 @@ artworks = artworks.sort((a, b) => {
 
   .grid-item:hover img {
     transform: scale(1.03);
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
+  }
+
+  .grid-item:hover .overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .overlay-title {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .overlay-price {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .overlay-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .overlay-status.available {
+    color: #6ee7a0;
+  }
+
+  .overlay-status.sold {
+    color: #f87171;
+  }
+
+  .overlay-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .overlay-status.available .overlay-status-dot {
+    background: #6ee7a0;
+  }
+
+  .overlay-status.sold .overlay-status-dot {
+    background: #f87171;
   }
 
   @media (max-width: 768px) {

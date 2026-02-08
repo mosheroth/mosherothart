@@ -10,6 +10,10 @@ const artworksCollection = defineCollection({
     category: z.string().optional(),
     year: z.string().optional(),
     featured: z.boolean().default(false),
+    medium: z.string().optional(),
+    size: z.string().optional(),
+    price: z.string().optional(),
+    sold: z.boolean().default(false),
   }),
 });
 
