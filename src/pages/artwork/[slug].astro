@@ -14,13 +14,16 @@ const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const basePath = base ? `${base}/` : '/';
-const categoryHref = artwork.data.category === 'fine-art' ? `${basePath}fine-art` : artwork.data.category === 'film' ? `${basePath}film` : basePath;
+const categoryHref = artwork.data.category === 'sketches' ? `${basePath}sketches` : basePath;
+const imgSrc = artwork.data.image.startsWith('/')
+  ? `${basePath}${artwork.data.image.slice(1)}`
+  : `${basePath}${artwork.data.image}`;
 ---
 
 <BaseLayout title={`${artwork.data.title} | Moshe Roth`} description={artwork.data.description ?? artwork.data.title}>
   <article class="artwork">
     <div class="image-container">
-      <img src={artwork.data.image} alt={artwork.data.title} />
+      <img src={imgSrc} alt={artwork.data.title} />
     </div>
     <div class="info">
       <h1>{artwork.data.title}</h1>

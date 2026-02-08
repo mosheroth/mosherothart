@@ -28,23 +28,28 @@ artworks = artworks.sort((a, b) => {
 ---
 
 <div class="grid">
-  {artworks.map((artwork) => (
-    <a href={`${basePath}artwork/${artwork.slug}`} class="grid-item">
-      <img
-        src={artwork.data.image}
-        alt={artwork.data.title}
-        loading="lazy"
-        decoding="async"
-      />
-    </a>
-  ))}
+  {artworks.map((artwork) => {
+    const imgSrc = artwork.data.image.startsWith('/')
+      ? `${basePath}${artwork.data.image.slice(1)}`
+      : `${basePath}${artwork.data.image}`;
+    return (
+      <a href={`${basePath}artwork/${artwork.slug}`} class="grid-item">
+        <img
+          src={imgSrc}
+          alt={artwork.data.title}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+    );
+  })}
 </div>
 
 <style>
   .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0;
+    gap: 0.75rem;
     width: 100%;
   }
 

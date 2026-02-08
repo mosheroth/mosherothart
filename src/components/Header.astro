@@ -2,13 +2,9 @@
 const base = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const basePath = base ? `${base}/` : '/';
 const navLinks = [
-  { href: `${basePath}portfolios`, label: 'PORTFOLIOS' },
-  { href: `${basePath}fine-art`, label: 'FINE ART' },
-  { href: `${basePath}film`, label: 'FILM' },
-  { href: `${basePath}press`, label: 'PRESS' },
-  { href: `${basePath}about`, label: 'ABOUT' },
+  { href: basePath, label: 'FOR SALE' },
+  { href: `${basePath}sketches`, label: 'SKETCHES' },
   { href: `${basePath}contact`, label: 'CONTACT' },
-  { href: `${basePath}links`, label: 'LINKS' },
 ];
 ---
 
@@ -24,7 +20,7 @@ const navLinks = [
     </ul>
   </nav>
   <a
-    href="https://instagram.com"
+    href="https://www.instagram.com/mzsrtgzr2/"
     target="_blank"
     rel="noopener noreferrer"
     class="instagram"
