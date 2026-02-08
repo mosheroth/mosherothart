@@ -9,34 +9,36 @@ const navLinks = [
 ---
 
 <header class="header">
-  <a href={basePath} class="logo">MOSHE ROTH</a>
-  <nav class="nav">
-    <ul class="nav-list">
-      {navLinks.map((link) => (
-        <li>
-          <a href={link.href} class="nav-link">{link.label}</a>
-        </li>
-      ))}
-    </ul>
-  </nav>
-  <a
-    href="https://www.instagram.com/mzsrtgzr2/"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="instagram"
-    aria-label="Instagram"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-    </svg>
-  </a>
-  <button class="menu-toggle" aria-label="Toggle menu">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
+  <div class="header-inner">
+    <a href={basePath} class="logo">MOSHE ROTH</a>
+    <nav class="nav">
+      <ul class="nav-list">
+        {navLinks.map((link) => (
+          <li>
+            <a href={link.href} class="nav-link">{link.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <a
+      href="https://www.instagram.com/mzsrtgzr2/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="instagram"
+      aria-label="Instagram"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+      </svg>
+    </a>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
 </header>
 
 <style>
@@ -44,12 +46,17 @@ const navLinks = [
     position: sticky;
     top: 0;
     z-index: 100;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+
+  .header-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 2rem;
-    background: #fff;
-    border-bottom: 1px solid #eee;
   }
 
   .logo {
