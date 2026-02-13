@@ -1,0 +1,272 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="פספרטו | משה רוט" description="כלי להוספת פספרטו לתמונה">
+  <article class="passe-partout-page">
+    <h1>פספרטו (Passe-partout)</h1>
+    <p class="intro">
+      לאזור הלבן בין הציור למסגרת החיצונית קוראים פספרטו. העלה תמונה ובחר רוחב שוליים — התמונה תוחזר עם פספרטו לבן.
+    </p>
+
+    <div class="tool">
+      <div class="tool-controls">
+        <label class="file-label">
+          <span class="file-label-text">בחירת תמונה</span>
+          <input type="file" id="file-input" accept="image/*" class="file-input" />
+        </label>
+        <label class="margin-label">
+          <span>רוחב פספרטו (אחיד מסביב, % מהצלע הקצרה):</span>
+          <input type="range" id="margin-slider" min="5" max="40" value="15" step="1" />
+          <output id="margin-value">15</output>%
+        </label>
+      </div>
+
+      <div class="preview-wrap">
+        <canvas id="preview" aria-label="תצוגה מקדימה עם פספרטו"></canvas>
+        <p id="hint" class="hint">העלה תמונה להתחלה</p>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="download-btn" class="download-btn" disabled>
+          הורד תמונה עם פספרטו
+        </button>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .passe-partout-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .passe-partout-page h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.75rem;
+  }
+
+  .intro {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .tool {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+  }
+
+  .tool-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .file-label {
+    cursor: pointer;
+  }
+
+  .file-label-text {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #111;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: opacity 0.2s;
+  }
+
+  .file-label:hover .file-label-text {
+    opacity: 0.9;
+  }
+
+  .file-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+
+  .margin-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #444;
+  }
+
+  .margin-label input[type="range"] {
+    width: 140px;
+  }
+
+  .margin-label output {
+    font-weight: 600;
+    min-width: 2ch;
+  }
+
+  .preview-wrap {
+    position: relative;
+    min-height: 200px;
+    background: #e5e5e5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .preview-wrap canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .hint {
+    position: absolute;
+    margin: 0;
+    color: #888;
+    font-size: 0.95rem;
+  }
+
+  .preview-wrap.has-image .hint {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+  }
+
+  .download-btn {
+    padding: 0.75rem 1.5rem;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .download-btn:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  .download-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  (function () {
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const marginSlider = document.getElementById('margin-slider') as HTMLInputElement;
+    const marginValue = document.getElementById('margin-value') as HTMLOutputElement;
+    const preview = document.getElementById('preview') as HTMLCanvasElement;
+    const hint = document.getElementById('hint');
+    const downloadBtn = document.getElementById('download-btn') as HTMLButtonElement;
+    const previewWrap = preview?.closest('.preview-wrap');
+
+    let currentImage: HTMLImageElement | null = null;
+    let resultCanvas: HTMLCanvasElement | null = null;
+    let uploadedFileName: string = '';
+
+    function updateMarginLabel() {
+      if (marginValue && marginSlider) marginValue.textContent = marginSlider.value;
+    }
+
+    function drawWithPassePartout(img: HTMLImageElement, marginPercent: number) {
+      const p = marginPercent / 100;
+      const shortSide = Math.min(img.width, img.height);
+      const margin = shortSide * p;
+      const outW = img.width + 2 * margin;
+      const outH = img.height + 2 * margin;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, outW, outH);
+      ctx.drawImage(img, margin, margin, img.width, img.height);
+
+      return canvas;
+    }
+
+    function render() {
+      if (!currentImage || !preview || !marginSlider) return;
+      const marginPercent = Number(marginSlider.value);
+      const result = drawWithPassePartout(currentImage, marginPercent);
+      if (!result) return;
+      resultCanvas = result;
+
+      const maxPreview = 520;
+      let w = result.width;
+      let h = result.height;
+      if (w > maxPreview || h > maxPreview) {
+        if (w > h) {
+          h = (h * maxPreview) / w;
+          w = maxPreview;
+        } else {
+          w = (w * maxPreview) / h;
+          h = maxPreview;
+        }
+      }
+      preview.width = w;
+      preview.height = h;
+      const pctx = preview.getContext('2d');
+      if (pctx) {
+        pctx.fillStyle = '#ffffff';
+        pctx.fillRect(0, 0, w, h);
+        pctx.drawImage(result, 0, 0, w, h);
+      }
+
+      previewWrap?.classList.add('has-image');
+      downloadBtn.disabled = false;
+    }
+
+    function onFileChange() {
+      const file = fileInput?.files?.[0];
+      if (!file || !preview) return;
+      uploadedFileName = file.name;
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        render();
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    function download() {
+      if (!resultCanvas) return;
+      const base = uploadedFileName ? uploadedFileName.replace(/\.[^.]+$/, '') : 'image';
+      const downloadName = `${base}-passe-partout.png`;
+      const link = document.createElement('a');
+      link.download = downloadName;
+      link.href = resultCanvas.toDataURL('image/png');
+      link.click();
+    }
+
+    marginSlider?.addEventListener('input', () => {
+      updateMarginLabel();
+      if (currentImage) render();
+    });
+    fileInput?.addEventListener('change', onFileChange);
+    downloadBtn?.addEventListener('click', download);
+    updateMarginLabel();
+  })();
+</script>
