@@ -11,6 +11,7 @@ const artworksCollection = defineCollection({
     image: z.string(),
     category: z.string().optional(),
     year: z.string().optional(),
+    date: z.string().optional(),
     featured: z.boolean().default(false),
     medium: z.string().optional(),
     size: z.string().optional(),

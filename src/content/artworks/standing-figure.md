@@ -6,7 +6,7 @@ category: for-sale
 year: "2025"
 medium: Watercolor on paper
 size: 21 × 29 cm
-price: "₪450"
+price: "₪180"
 sold: false
 subjects: [figure]
 ---

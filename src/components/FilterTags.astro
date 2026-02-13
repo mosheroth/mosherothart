@@ -1,16 +1,37 @@
 ---
 import { PRICE_CATEGORIES, STATUS_CATEGORIES, SUBJECT_CATEGORIES } from '../lib/categories';
 
+const SORT_OPTIONS = [
+  { value: 'date', label: 'תאריך (חדש לישן)' },
+  { value: 'price-asc', label: 'מחיר (נמוך לגבוה)' },
+  { value: 'price-desc', label: 'מחיר (גבוה לנמוך)' },
+] as const;
+
 interface Props {
   activePrice?: string;
   activeStatus?: string;
   activeSubject?: string;
+  activeSort?: string;
 }
 
-const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
+const { activePrice = '', activeStatus = '', activeSubject = '', activeSort = 'date' } = Astro.props;
 ---
 
 <div class="filter-bar" id="filter-bar">
+  <div class="filter-row">
+    <span class="filter-label">מיון:</span>
+    <div class="filter-tags" data-filter-type="sort">
+      {SORT_OPTIONS.map((opt) => (
+        <button
+          type="button"
+          class={`filter-tag ${activeSort === opt.value ? 'active' : ''}`}
+          data-value={opt.value}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  </div>
   <div class="filter-row">
     <span class="filter-label">מחיר:</span>
     <div class="filter-tags-wrap">
@@ -252,6 +273,7 @@ const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
       price: url.searchParams.get('price') || '',
       status: url.searchParams.get('status') || '',
       subject: url.searchParams.get('subject') || '',
+      sort: url.searchParams.get('sort') || 'date',
     };
   }
 
@@ -286,7 +308,7 @@ const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
     });
   }
 
-  function updateUrl(price: string, status: string, subject: string) {
+  function updateUrl(price: string, status: string, subject: string, sort: string) {
     const url = new URL(window.location.href);
     if (price) url.searchParams.set('price', price);
     else url.searchParams.delete('price');
@@ -294,10 +316,37 @@ const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
     else url.searchParams.delete('status');
     if (subject) url.searchParams.set('subject', subject);
     else url.searchParams.delete('subject');
+    if (sort && sort !== 'date') url.searchParams.set('sort', sort);
+    else url.searchParams.delete('sort');
     window.history.replaceState({}, '', url.toString());
   }
 
-  function setActiveButton(type: 'price' | 'status', value: string) {
+  function normDateKey(d: string): string {
+    if (!d) return '';
+    if (/^\d{4}$/.test(d)) return d + '-01-01';
+    return d;
+  }
+
+  function reorderGrid(sort: string) {
+    const grid = document.querySelector('#artwork-grid .grid');
+    if (!grid) return;
+    const items = Array.from(grid.querySelectorAll('.grid-item'));
+    const sorted = items.slice().sort((a, b) => {
+      const elA = a as HTMLElement;
+      const elB = b as HTMLElement;
+      if (sort === 'price-asc' || sort === 'price-desc') {
+        const na = parseInt(elA.dataset.price || '', 10) || 1e9;
+        const nb = parseInt(elB.dataset.price || '', 10) || 1e9;
+        return sort === 'price-asc' ? na - nb : nb - na;
+      }
+      const dateA = normDateKey(elA.dataset.date || '');
+      const dateB = normDateKey(elB.dataset.date || '');
+      return dateB.localeCompare(dateA);
+    });
+    sorted.forEach((node) => grid.appendChild(node));
+  }
+
+  function setActiveButton(type: 'price' | 'status' | 'subject' | 'sort', value: string) {
     const container = document.querySelector(`[data-filter-type="${type}"]`);
     container?.querySelectorAll('.filter-tag').forEach((btn) => {
       btn.classList.toggle('active', (btn as HTMLElement).dataset.value === value);
@@ -311,12 +360,13 @@ const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
 
   document.addEventListener('DOMContentLoaded', () => {
     const bar = document.getElementById('filter-bar');
-    const { price, status, subject } = getParams();
+    const { price, status, subject, sort } = getParams();
 
     applyFilters(price, status, subject);
     setActiveButton('price', price);
     setActiveButton('status', status);
     setActiveButton('subject', subject);
+    setActiveButton('sort', sort);
     setDonationExplanationVisible(price === 'donation');
 
     bar?.querySelectorAll('.filter-scroll-btn').forEach((scrollBtn) => {
@@ -341,23 +391,29 @@ const { activePrice = '', activeStatus = '', activeSubject = '' } = Astro.props;
 
       if (type === 'price') {
         const newPrice = value;
-        const { status: s, subject: sub } = getParams();
-        updateUrl(newPrice, s, sub);
+        const { status: s, subject: sub, sort: sortVal } = getParams();
+        updateUrl(newPrice, s, sub, sortVal);
         setActiveButton('price', newPrice);
         applyFilters(newPrice, s, sub);
         setDonationExplanationVisible(newPrice === 'donation');
       } else if (type === 'status') {
         const newStatus = value;
-        const { price: p, subject: sub } = getParams();
-        updateUrl(p, newStatus, sub);
+        const { price: p, subject: sub, sort: sortVal } = getParams();
+        updateUrl(p, newStatus, sub, sortVal);
         setActiveButton('status', newStatus);
         applyFilters(p, newStatus, sub);
       } else if (type === 'subject') {
         const newSubject = value;
-        const { price: p, status: s } = getParams();
-        updateUrl(p, s, newSubject);
+        const { price: p, status: s, sort: sortVal } = getParams();
+        updateUrl(p, s, newSubject, sortVal);
         setActiveButton('subject', newSubject);
         applyFilters(p, s, newSubject);
+      } else if (type === 'sort') {
+        const newSort = value;
+        const { price: p, status: s, subject: sub } = getParams();
+        updateUrl(p, s, sub, newSort);
+        setActiveButton('sort', newSort);
+        reorderGrid(newSort);
       }
     });
   });

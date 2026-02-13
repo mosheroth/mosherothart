@@ -2,16 +2,40 @@
 import { getCollection } from 'astro:content';
 import { filterArtworks, getPriceCategory, parsePrice, type PriceSlug, type StatusSlug } from '../lib/categories';
 
+type SortSlug = 'date' | 'price-asc' | 'price-desc';
+
 interface Props {
   price?: PriceSlug;
   status?: StatusSlug;
+  sort?: SortSlug;
   limit?: number;
   clientFilter?: boolean;
 }
 
-const { price = '', status = '', limit, clientFilter = false } = Astro.props;
+const { price = '', status = '', sort = 'date', limit, clientFilter = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
 const basePath = base ? `${base}/` : '/';
+
+function sortKeyDate(dateStr: string, yearStr?: string): string {
+  if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  if (yearStr && /^\d{4}$/.test(yearStr)) return `${yearStr}-01-01`;
+  return dateStr || yearStr || '';
+}
+
+function sortArtworks(artworks: typeof import('astro:content').CollectionEntry<'artworks'>[], order: SortSlug) {
+  return [...artworks].sort((a, b) => {
+    if (order === 'price-asc' || order === 'price-desc') {
+      const pa = parsePrice(a.data.price);
+      const pb = parsePrice(b.data.price);
+      const na = pa ?? 1e9;
+      const nb = pb ?? 1e9;
+      return order === 'price-asc' ? na - nb : nb - na;
+    }
+    const dateA = sortKeyDate(a.data.date || '', a.data.year);
+    const dateB = sortKeyDate(b.data.date || '', b.data.year);
+    return dateB.localeCompare(dateA);
+  });
+}
 
 let artworks = await getCollection('artworks');
 if (!clientFilter) {
@@ -22,11 +46,7 @@ if (limit) {
   artworks = artworks.slice(0, limit);
 }
 
-artworks = artworks.sort((a, b) => {
-  const dateA = a.data.year ?? '';
-  const dateB = b.data.year ?? '';
-  return dateB.localeCompare(dateA);
-});
+artworks = sortArtworks(artworks, sort as SortSlug);
 ---
 
 <div class="grid-wrapper" id="artwork-grid">
@@ -41,11 +61,13 @@ artworks = artworks.sort((a, b) => {
     const isSold = artwork.data.sold ?? false;
     const subjects = (artwork.data.subjects ?? []).join(',');
     const artworkHref = `${basePath}artwork/${artwork.slug}`;
+    const sortDate = sortKeyDate(artwork.data.date || '', artwork.data.year);
     return (
       <div
         class="grid-item"
         data-price-cat={priceCat || undefined}
         data-price={priceNum ?? undefined}
+        data-date={sortDate || undefined}
         data-donation={isDonation ? 'true' : undefined}
         data-sold={isSold ? 'true' : 'false'}
         data-subjects={subjects || undefined}
@@ -60,6 +82,7 @@ artworks = artworks.sort((a, b) => {
         <div class="overlay">
           <span class="overlay-title">{artwork.data.titleHe ?? artwork.data.title}</span>
           {artwork.data.price && <span class="overlay-price">{artwork.data.price}</span>}
+          <span class="overlay-status">{isSold ? 'נמכר' : 'זמין'}</span>
           <a href={artworkHref} class="overlay-btn">
             פרטים
           </a>
@@ -138,6 +161,14 @@ artworks = artworks.sort((a, b) => {
   .overlay-price {
     color: #fff;
     font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .overlay-status {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 0.05em;
     text-align: center;

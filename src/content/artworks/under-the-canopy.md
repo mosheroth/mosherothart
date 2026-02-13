@@ -2,11 +2,11 @@
 title: Under the Canopy
 titleHe: תחת הסכך
 image: /images/under-the-canopy.png
-category: for-sale
+category: donation
 year: "2025"
 medium: Watercolor on paper
 size: 30 × 40 cm
-price: "₪180"
+price: "תרומה"
 subjects: [figure, landscape]
 ---
 

@@ -7,9 +7,11 @@ const url = Astro.url;
 const price = url.searchParams.get('price') || '';
 const status = url.searchParams.get('status') || '';
 const subject = url.searchParams.get('subject') || '';
+const sort = url.searchParams.get('sort') || 'date';
+const validSort = ['date', 'price-asc', 'price-desc'].includes(sort) ? sort : 'date';
 ---
 
 <BaseLayout title="משה רוט | תיק עבודות" description="עבודות צבעי מים למכירה">
-  <FilterTags activePrice={price} activeStatus={status} activeSubject={subject} />
-  <ArtworkGrid clientFilter={true} />
+  <FilterTags activePrice={price} activeStatus={status} activeSubject={subject} activeSort={validSort} />
+  <ArtworkGrid clientFilter={true} sort={validSort} />
 </BaseLayout>

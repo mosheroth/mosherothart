@@ -2,11 +2,11 @@
 title: City Sunset
 titleHe: שקיעה עירונית
 image: /images/city-sunset.png
-category: donation
+category: for-sale
 year: "2025"
 medium: Watercolor on paper
 size: 30 × 40 cm
-price: "תרומה"
+price: "₪250"
 subjects: [urban, landscape]
 ---
 

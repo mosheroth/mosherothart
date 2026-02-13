@@ -6,7 +6,7 @@ category: for-sale
 year: "2025"
 medium: Watercolor on paper
 size: 30 × 40 cm
-price: "₪650"
+price: "₪100"
 subjects: [figure, landscape]
 ---
 
